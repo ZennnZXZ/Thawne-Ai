@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thawne-Ai Chat Pria Cuek</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* --- CSS: Tampilan WhatsApp Style --- */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            /* Latar belakang kustom dengan !important untuk prioritas */
+            background-image: url('https://cdn.yupra.my.id/yp/b5kdw757.jpg') !important;
+            background-size: cover !important; /* Menutupi seluruh area */
+            background-position: center !important; /* Memusatkan gambar */
+            background-attachment: fixed !important; /* Gambar tetap saat scroll */
+            background-color: rgba(218, 219, 211, 0.8) !important; 
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px; 
+            height: 90vh;
+            min-height: 500px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(229, 221, 213, 0.85); /* Latar belakang chat dibuat sedikit transparan */
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            background-color: #075e54; /* Warna hijau header WhatsApp */
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Untuk memisahkan profil dan menu */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative; /* Penting untuk penempatan menu */
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Gaya untuk gambar profil kustom */
+        .profile img {
+            width: 48px; 
+            height: 48px;
+            border-radius: 50%; /* Membuat gambar menjadi lingkaran */
+            object-fit: cover; 
+            margin-right: 15px;
+            border: 2px solid white; 
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Gaya untuk ikon cadangan (jika gambar gagal dimuat) */
+        .profile i {
+            font-size: 28px;
+            margin-right: 15px;
+            padding: 5px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .info strong {
+            display: block;
+            font-size: 17px;
+        }
+
+        .info span {
+            font-size: 12px;
+            color: #b3d9d3;
+        }
+
+        /* Tombol Menu (Titik Tiga) */
+        .menu-button {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 10px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .menu-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Menu Dropdown */
+        .dropdown-menu {
+            position: absolute;
+            top: 55px; /* Sedikit di bawah header */
+            right: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 20; /* Lebih tinggi dari konten lain */
+            width: 150px;
+            display: none; /* Sembunyikan secara default */
+            list-style: none;
+            padding: 5px 0;
+            margin: 0;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        .dropdown-menu li:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Area Pesan */
+        .messages-area {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px; 
+        }
+
+        /* Balon Pesan */
+        .message {
+            max-width: 85%;
+            padding: 8px 10px 18px 10px; 
+            border-radius: 8px;
+            position: relative;
+            word-wrap: break-word;
+            line-height: 1.4;
+            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+            white-space: pre-wrap; 
+        }
+
+        .message p {
+            margin: 0;
+        }
+
+        .message .time {
+            position: absolute;
+            bottom: 3px;
+            right: 6px;
+            font-size: 10px;
+            color: rgba(0, 0, 0, 0.45);
+        }
+
+        /* Pesan Diterima (AI) */
+        .message.received {
+            background-color: #ffffff; 
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+
+        /* Pesan Dikirim (Pengguna) */
+        .message.sent {
+            background-color: #dcf8c6; 
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+
+        /* Area Input */
+        .input-area {
+            display: flex;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ccc;
+        }
+
+        #message-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        #send-button {
+            background-color: #075e54;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        #send-button:hover {
+            background-color: #128c7e;
+        }
+
+        #send-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Loading Indicator CSS (Tidak diubah) */
+        .loading-dots { /* ... (CSS loading dots) */ }
+        .dot { /* ... (CSS dot) */ }
+        @keyframes bounce { /* ... (CSS bounce) */ }
+        .sending-indicator { /* ... (CSS sending indicator) */ }
+
+        /* --- MODAL (Kotak Dialog) CSS --- */
+        .modal {
+            display: none; /* Sembunyikan secara default */
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Latar belakang gelap */
+            backdrop-filter: blur(4px); /* Efek blur modern */
+            padding-top: 50px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* Tengah vertikal dan horizontal */
+            padding: 20px;
+            border-radius: 10px;
+            width: 85%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #075e54;
+        }
+
+        .close-button {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .modal-body p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        .modal-body strong {
+            color: #075e54;
+        }
+        
+        /* Responsive CSS */
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .modal-content {
+                margin: 20% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <div class="profile">
+                <!-- Gambar Profil Kustom yang baru -->
+                <img src="https://files.catbox.moe/gsgand.jpg" 
+                     alt="Foto Profil Thawne-Ai">
+
+                <div class="info">
+                    <strong>Thawne-Ai</strong>
+                    <span>online</span>
+                </div>
+            </div>
+            
+            <!-- Tombol Titik Tiga (Menu) -->
+            <div class="menu-button" onclick="toggleDropdown()">
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
+            
+            <!-- Menu Dropdown -->
+            <ul class="dropdown-menu" id="dropdown-menu">
+                <li onclick="showAboutModal()">Tentang Thawne-Ai</li>
+            </ul>
+        </div>
+
+        <div class="messages-area" id="messages-area">
+            <div class="message received">
+                <p>Ini Thawne-Ai. Ada yang penting? Cepat katakan.</p>
+                <span class="time">12:00</span>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Ketik pesan..." 
+                   onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()" id="send-button">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal (Kotak Dialog) About Us -->
+    <div id="about-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Tentang Thawne-Ai</h2>
+          <span class="close-button" onclick="closeAboutModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p><strong>Thawne-Ai</strong> adalah asisten kecerdasan buatan dengan persona yang unik: cuek, judes, dan berbicara singkat namun faktual.</p>
+          <p>Ia dirancang untuk menanggapi pertanyaan Anda dengan efisien dan tanpa basa-basi yang tidak perlu. Thawne-Ai selalu menggunakan Bahasa Indonesia.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;">
+          <p><strong>Pembuat (Creator):</strong></p>
+          <p>Ryzen Thawne</p>
+          <p><strong>Kontak:</strong></p>
+          <p>085297424012 (Nomor WhatsApp)</p>
+        </div>
+      </div>
+    </div>
+
+    
+    <script>
+        // --- JAVASCRIPT: Logika Chat dan Akses API Kustom ---
+        
+        // URL API yang diminta
+        const CHAT_API_BASE_URL = 'https://api.siputzx.my.id/api/ai/gpt3'; 
+        
+        // Persona AI: Pria cuek, judes, dan DITAMBAHKAN penekanan Bahasa Indonesia
+        const SYSTEM_PROMPT = 'You are an Indonesian male AI assistant named Thawne-Ai. You are very aloof, often surly (judes), and speak briefly but factually. You hate small talk (basa-basi). ALWAYS respond STRICTLY in INDONESIAN (Bahasa Indonesia).';
+
+        const messagesArea = document.getElementById('messages-area');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const aboutModal = document.getElementById('about-modal');
+
+
+        /* --- LOGIKA MENU DROPDOWN & MODAL --- */
+        
+        /**
+         * Mengubah visibilitas menu dropdown.
+         */
+        function toggleDropdown() {
+            dropdownMenu.classList.toggle('active');
+        }
+
+        /**
+         * Menampilkan modal About Us.
+         */
+        function showAboutModal() {
+            dropdownMenu.classList.remove('active'); // Sembunyikan dropdown
+            aboutModal.style.display = 'block';
+        }
+
+        /**
+         * Menyembunyikan modal About Us.
+         */
+        function closeAboutModal() {
+            aboutModal.style.display = 'none';
+        }
+        
+        // Menutup modal jika user klik di luar kotak konten
+        window.onclick = function(event) {
+            if (event.target == aboutModal) {
+                closeAboutModal();
+            }
+            // Menutup dropdown jika user klik di luar tombol dan menu
+            if (!event.target.closest('.menu-button') && !event.target.closest('.dropdown-menu')) {
+                 dropdownMenu.classList.remove('active');
+            }
+        }
+        
+        /* --- LOGIKA CHAT & API --- */
+
+
+        /**
+         * Mengambil waktu saat ini dalam format HH:MM
+         */
+        function getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }
+
+        /**
+         * Menambahkan elemen pesan ke area chat.
+         */
+        function appendMessage(text, type, time) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            // Mengganti baris baru (\n) menjadi <br> agar terlihat di HTML
+            const formattedText = text.replace(/\n/g, '<br>');
+            messageDiv.innerHTML = `<p>${formattedText}</p><span class="time">${time}</span>`;
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight; 
+        }
+
+        /**
+         * Menampilkan indikator "AI sedang mengetik..."
+         */
+        function showLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.className = 'sending-indicator';
+            loadingDiv.innerHTML = `
+                <div class="loading-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            `;
+            messagesArea.appendChild(loadingDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        /**
+         * Menghapus indikator loading.
+         */
+        function removeLoadingIndicator() {
+            const loadingDiv = document.getElementById('loading-indicator');
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+        
+        /**
+         * Implementasi backoff eksponensial untuk retry API call.
+         */
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue; // Coba lagi
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP Error! Status: ${response.status} ${response.statusText}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    const delay = Math.pow(2, i) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        /**
+         * Mengirim pesan dari pengguna dan mendapatkan respons dari Thawne-Ai.
+         */
+        async function sendMessage() {
+            const userMessage = messageInput.value.trim();
+            if (userMessage === '') return;
+
+            // Nonaktifkan input saat memproses
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            // 1. Tampilkan pesan pengguna
+            appendMessage(userMessage, 'sent', getCurrentTime());
+            messageInput.value = '';
+            
+            // 2. Tampilkan indikator loading AI
+            showLoadingIndicator();
+            
+            try {
+                // 3. Panggil API Kustom (GET request)
+                const encodedSystemPrompt = encodeURIComponent(SYSTEM_PROMPT);
+                const encodedUserContent = encodeURIComponent(userMessage);
+                
+                const customApiUrl = `${CHAT_API_BASE_URL}?prompt=${encodedSystemPrompt}&content=${encodedUserContent}`;
+
+                const response = await fetchWithRetry(customApiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json', 
+                    }
+                });
+
+                const result = await response.json(); 
+                
+                let aiResponse = "Thawne-Ai: Gagal memproses respons. Cek konsol untuk detail error.";
+                
+                // 4. Ekstrak teks respons dari kunci 'data' (sudah dikonfirmasi dari error sebelumnya)
+                if (result.status === true && result.data) {
+                    aiResponse = result.data;
+                } else if (result.response) {
+                    // Fallback ke kunci 'response'
+                    aiResponse = result.response;
+                } else if (result.result) {
+                    // Fallback ke kunci 'result'
+                    aiResponse = result.result;
+                } else {
+                    // Penanganan kasus jika status false atau format lain
+                    const fallback = JSON.stringify(result) || 'Respons API tidak terduga.';
+                    aiResponse = `[API Error] Gagal memproses. Respons: ${fallback}`;
+                }
+                
+                // 5. Tampilkan respons Thawne-Ai
+                removeLoadingIndicator();
+                appendMessage(aiResponse, 'received', getCurrentTime());
+
+            } catch (error) {
+                console.error('ERROR saat menghubungi API Kustom:', error);
+                removeLoadingIndicator();
+                appendMessage(`[Koneksi Error] Gagal menghubungi Thawne-Ai. Pesan: ${error.message}`, 'received', getCurrentTime());
+            } finally {
+                // Aktifkan kembali input
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus(); 
+            }
+        }
+    </script>
+</body>
+</html>
+
